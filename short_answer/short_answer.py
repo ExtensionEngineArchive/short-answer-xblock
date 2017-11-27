@@ -2,6 +2,7 @@
 import json
 
 from django.contrib.auth.models import User
+from django.template import Context, Template
 from django.utils.translation import ugettext_lazy as _  # pylint: disable=import-error
 from webob.response import Response
 
@@ -9,6 +10,26 @@ import pkg_resources
 from xblock.core import XBlock
 from xblock.fields import Float, Integer, Scope, String
 from xblock.fragment import Fragment
+
+
+def load_resource(resource_path):  # pragma: NO COVER
+    """
+    Gets the content of a resource
+    """
+    resource_content = pkg_resources.resource_string(__name__, resource_path)
+    return unicode(resource_content)
+
+
+def render_template(template_path, context=None):  # pragma: NO COVER
+    """
+    Evaluate a template by resource path, applying the provided context.
+    """
+    if context is None:
+        context = {}
+
+    template_str = load_resource(template_path)
+    template = Template(template_str)
+    return template.render(Context(context))
 
 
 class ShortAnswerXBlock(XBlock):
@@ -20,6 +41,7 @@ class ShortAnswerXBlock(XBlock):
     icons_class = 'problem'
 
     display_name = String(
+        display_name=_('Display name'),
         default=_('Short Answer'),
         scope=Scope.settings,
         help=_('This name appears in the horizontal navigation at the top of '
@@ -42,7 +64,7 @@ class ShortAnswerXBlock(XBlock):
 
     score = Integer(
         display_name=_('Student score'),
-        default=None,
+        default=0,
         scope=Scope.settings,
         help=_('Score given by instructor.')
     )
@@ -58,9 +80,7 @@ class ShortAnswerXBlock(XBlock):
         display_name=_('Problem Weight'),
         values={'min': 0, 'step': .1},
         scope=Scope.settings,
-        help=_('Defines the number of points each problem is worth. '
-               'If the value is not set, the problem is worth the sum of the '
-               'option point values.'),
+        help=_('Defines the number of points the problem is worth.'),
     )
 
     @property
@@ -71,6 +91,23 @@ class ShortAnswerXBlock(XBlock):
         """Handy helper for getting resources from our kit."""
         data = pkg_resources.resource_string(__name__, path)
         return data.decode("utf8")
+
+    def studio_view(self, context=None):
+        """View for the form when editing this block in Studio."""
+        cls = type(self)
+        context['fields'] = (
+            (cls.display_name, getattr(self, 'display_name', ''), 'input', 'text'),
+            (cls.max_score, getattr(self, 'max_score', ''), 'input', 'number'),
+            (cls.weight, getattr(self, 'weight', ''), 'input', 'number'),
+            (cls.feedback, getattr(self, 'feedback', ''), 'textarea', 'text'),
+        )
+
+        frag = Fragment()
+        frag.add_content(render_template("static/html/short_answer_edit.html", context))
+        frag.add_css(self.resource_string("static/css/short_answer_edit.css"))
+        frag.add_javascript(self.resource_string("static/js/src/short_answer_edit.js"))
+        frag.initialize_js('ShortAnswerStudioXBlock')
+        return frag
 
     def student_view(self, context=None):
         """

@@ -1,0 +1,27 @@
+<div class="short-answer-edit">
+    <div class="wrapper-comp-settings is-active">
+        <ul class="list-input settings-list">
+            <li class="field comp-setting-entry metadata_entry">
+            {% for field, value, inputtype, datatype in fields %}
+            <li class="field comp-setting-entry metadata_entry">
+                <div class="wrapper-comp-setting">
+                    <label class="label setting-label"
+                    for="{{ field.name }}_input">{{ field.display_name }}</label>
+                    {% if inputtype == 'input' %}
+                        <input class="input setting-input" type="{{ datatype }}"
+                            id="{{ field.name }}_input"
+                            name="{{ field.name }}"
+                            value="{% if value %}{{ value }}{% else %}0{% endif %}"/>
+                    {% elif inputtype == 'textarea' %}
+                        <textarea class="input setting-input"
+                            rows="5"
+                            id="{{ field.name }}_input"
+                            name="{{ field.name }}">{{ value }}</textarea>
+                    {% endif %}
+                </div>
+                <span class="tip setting-help">{{ field.help }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
