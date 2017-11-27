@@ -1,0 +1,6 @@
+/* CSS for ShortAnswerXBlock */
+
+.short-answer-block textarea {
+    width: 500px;
+    height: 130px;
+}
