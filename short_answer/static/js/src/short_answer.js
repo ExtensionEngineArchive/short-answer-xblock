@@ -25,8 +25,4 @@ function ShortAnswerXBlock(runtime, element) {
       }
     });
   });
-
-  $(function ($) {
-    // On document load operations.
-  });
 }

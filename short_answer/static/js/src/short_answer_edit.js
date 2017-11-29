@@ -31,8 +31,4 @@ function ShortAnswerStudioXBlock(runtime, element) {
   $('.cancel-button', element).click(function(event) {
     runtime.notify('cancel', {});
   });
-
-  $(function ($) {
-    // On document load operations.
-  });
 }
