@@ -4,6 +4,6 @@
     </div>
     <textarea id="" class="short-answer" name="short-answer"></textarea>
     <p class="error"></p>
-    <div class="feedback"><p></p></div>
+    <div class="feedback {% if not submission %}hidden{% endif %}"><p>{{ feedback }}</p></div>
     <button type="submit" class="btn-submit">Submit</button>
 </div>

@@ -4,3 +4,8 @@
     width: 500px;
     height: 130px;
 }
+
+.feedback { color: #166e36; }
+.error { color: #c13840; }
+.hidden { display:none; }
+

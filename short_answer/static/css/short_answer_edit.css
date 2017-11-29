@@ -1,3 +1,10 @@
-#feedback_input {
+#feedback-input {
     width: 43%;
+}
+
+.cancel-button {
+    border: none;
+    background-color: transparent;
+    padding: 0;
+    color: #009fe6;
 }
