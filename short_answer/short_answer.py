@@ -1,18 +1,24 @@
 """Short Answer XBlock."""
+import datetime
+import json
+
 from django.contrib.auth.models import User
 from django.template import Context, Template
 from django.utils.translation import ugettext_lazy as _  # pylint: disable=import-error
 from webob.response import Response  # pylint: disable=import-error
 
+from courseware.models import StudentModule
+from student.models import CourseEnrollment
+
 import pkg_resources
 from xblock.core import XBlock
-from xblock.fields import Float, Integer, Scope, String
+from xblock.fields import DateTime, Float, Integer, Scope, String
 from xblock.fragment import Fragment
 
 
 def load_resource(resource_path):
     """
-    Gets the content of a resource
+    Gets the content of a resource.
     """
     resource_content = pkg_resources.resource_string(__name__, resource_path)
     return unicode(resource_content)
@@ -44,36 +50,46 @@ class ShortAnswerXBlock(XBlock):
     has_score = True
     icons_class = 'problem'
 
-    display_name = String(
-        display_name=_('Display name'),
-        default=_('Short Answer'),
-        scope=Scope.settings,
-        help=_('This name appears in the horizontal navigation at the top of '
-               'the page.')
+    answer = String(
+        display_name=_('Student\'s answer'),
+        default='',
+        scope=Scope.user_state,
+        help=_('Text the student entered as answer.')
+    )
+
+    answered_at = DateTime(
+        display_name=_('Answer submission time.'),
+        default=None,
+        scope=Scope.user_state,
+        help=_('Time and date when the answer has been submitted.')
     )
 
     description = String(
         display_name=_('Description'),
-        default=_('Submit your questions and observations in 1-2 short '
-                  'paragraphs below.'),
+        default=_('Submit your questions and observations in 1-2 short paragraphs below.'),
         scope=Scope.settings,
-        help=_('This name appears in the horizontal navigation at the top of '
-               'the page.')
+        help=_('Description that appears above the text input area.')
     )
 
-    submission = String(
-        display_name=_('Student answer submission'),
-        default='',
-        scope=Scope.user_state,
-        help=_('Student submission.')
+    display_name = String(
+        display_name=_('Display name'),
+        default=_('Short Answer'),
+        scope=Scope.settings,
+        help=_('This name appears in the horizontal navigation at the top of the page.')
     )
 
     feedback = String(
         display_name=_('Instructor feedback'),
         default='',
         scope=Scope.settings,
-        help=_('Message that will be shown to the student once the student '
-               ' submits an answer.')
+        help=_('Message that will be shown to the student once the student submits an answer.')
+    )
+
+    maximum_score = Integer(
+        display_name=_('Maximum score'),
+        default=100,
+        scope=Scope.settings,
+        help=_('Maximum score given for this assignment.')
     )
 
     score = Integer(
@@ -83,17 +99,10 @@ class ShortAnswerXBlock(XBlock):
         help=_('Score given for this assignment.')
     )
 
-    max_score = Integer(
-        display_name=_('Maximum score'),
-        default=100,
-        scope=Scope.settings,
-        help=_('Maximum grade score given to this assignment.')
-    )
-
     weight = Float(
         display_name=_('Problem Weight'),
-        default=0.0,
-        values={'min': 0, 'step': .1},
+        default=1.0,
+        values={'min': 0},
         scope=Scope.settings,
         help=_('Defines the number of points the problem is worth.'),
     )
@@ -108,19 +117,16 @@ class ShortAnswerXBlock(XBlock):
         cls = type(self)
         context['fields'] = (
             (cls.display_name, getattr(self, 'display_name', ''), 'input', 'text'),
-            (cls.max_score, getattr(self, 'max_score', ''), 'input', 'number'),
-            (cls.weight, getattr(self, 'weight', ''), 'input', 'number'),
+            (cls.description, getattr(self, 'description', ''), 'textarea', 'text'),
             (cls.feedback, getattr(self, 'feedback', ''), 'textarea', 'text'),
+            (cls.maximum_score, getattr(self, 'maximum_score', ''), 'input', 'number'),
+            (cls.weight, getattr(self, 'weight', ''), 'input', 'number'),
         )
 
         frag = Fragment()
-        frag.add_content(
-            render_template('static/html/short_answer_edit.html', context)
-        )
+        frag.add_content(render_template('static/html/short_answer_edit.html', context))
         frag.add_css(resource_string('static/css/short_answer_edit.css'))
-        frag.add_javascript(
-            resource_string('static/js/src/short_answer_edit.js')
-        )
+        frag.add_javascript(resource_string('static/js/src/short_answer_edit.js'))
         frag.initialize_js('ShortAnswerStudioXBlock')
         return frag
 
@@ -129,12 +135,14 @@ class ShortAnswerXBlock(XBlock):
         The primary view of the ShortAnswerXBlock, shown to students
         when viewing courses.
         """
-        context['feedback'] = self.feedback
-        context['submission'] = self.submission
+        context.update({
+            'answer': self.answer,
+            'description': self.description,
+            'feedback': self.feedback,
+            'is_course_staff': getattr(self.xmodule_runtime, 'user_is_staff', False),
+        })
         frag = Fragment()
-        frag.add_content(
-            render_template('static/html/short_answer.html', context)
-        )
+        frag.add_content(render_template('static/html/short_answer.html', context))
         frag.add_css(resource_string('static/css/short_answer.css'))
         frag.add_javascript(resource_string('static/js/src/short_answer.js'))
         frag.initialize_js('ShortAnswerXBlock')
@@ -143,7 +151,8 @@ class ShortAnswerXBlock(XBlock):
     @XBlock.json_handler
     def student_submission(self, data, suffix=''):  # pylint: disable=unused-argument
         """Handle the student's answer submission."""
-        self.submission = data.get('submission')
+        self.answer = data.get('submission')
+        self.answered_at = datetime.datetime.now()
         return Response(status_code=201)
 
     @XBlock.json_handler
@@ -152,3 +161,68 @@ class ShortAnswerXBlock(XBlock):
         for key in data:
             setattr(self, key, data[key])
         return Response(status_code=201)
+
+    @XBlock.json_handler
+    def submit_grade(self, data, suffix=''):
+        """Handle the grade submission request."""
+        score = data.get('score')
+        module_id = data.get('module_id')
+        if not (score and module_id):
+            return Response(
+                status_code=400,
+                body=json.dumps({'error': 'Missing score and/or module_id parameters.'})
+            )
+
+        module = StudentModule.objects.get(pk=module_id)
+        module.grade = float(score)
+        module.max_grade = self.maximum_score
+        module.save()
+        return Response(status_code=200, body=json.dumps({'new_score': module.grade}))
+
+    @XBlock.json_handler
+    def remove_grade(self, data, suffix=''):
+        """Handle the grade removal request."""
+        module_id = data.get('module_id')
+        if not module_id:
+            return Response(
+                status_code=400,
+                body=json.dumps({'error': 'Missing module_id parameters.'})
+            )
+
+        module = StudentModule.objects.get(pk=module_id)
+        module.grade = None
+        module.save()
+        return Response(status_code=200)
+
+    @XBlock.handler
+    def answer_submissions(self, *args, **kwargs):
+        """Return a list of all enrolled students and their answer submission information."""
+        enrollments = CourseEnrollment.objects.filter(
+            course_id=self.course_id,
+            is_active=True
+        )
+        submissions_list = []
+
+        for enrollment in enrollments:
+            student = enrollment.user
+            module, _ = StudentModule.objects.get_or_create(
+                course_id=self.course_id,
+                module_state_key=self.location,
+                student=student,
+                defaults={
+                    'max_grade': self.maximum_score,
+                    'module_type': self.category,
+                    'state': '{}',
+                }
+            )
+            state = json.loads(module.state)
+            submissions_list.append({
+                'answer': state.get('answer'),
+                'answered_at': str(state.get('answered_at')),
+                'email': student.email,
+                'fullname': student.profile.name,
+                'maximum_score': self.maximum_score,
+                'module_id': module.id,
+                'score': module.grade,
+            })
+        return Response(status_code=200, body=json.dumps(submissions_list))

@@ -1,3 +1,5 @@
+{% load i18n %}
+
 <div class="short-answer-edit">
     <div class="wrapper-comp-settings is-active editor-with-buttons">
         <ul class="list-input settings-list">
@@ -27,11 +29,11 @@
         <span class="xblock-editor-error-message"></span>
           <ul>
             <li class="action-item">
-              <button class="button action-primary save-button">Save</button>
+              <button class="button action-primary save-button">{% trans "Save" %}</button>
             </li>
 
             <li class="action-item">
-              <button class="button cancel-button">Cancel</button>
+              <button class="button cancel-button">{% trans "Cancel" %}</button>
             </li>
           </ul>
         </div>
