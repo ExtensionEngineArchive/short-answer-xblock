@@ -9,7 +9,7 @@
     {% if feedback %}
     <div class="feedback {% if not answer %}hidden{% endif %}"><p>{{ feedback }}</p></div>
     {% endif %}
-    <button type="submit" class="btn-submit">{% trans "Submit" %}</button>
+    <button type="submit" class="btn-submit" {% if passed_due %}disabled{% endif %}>{% trans "Submit" %}</button>
 
     {% if is_course_staff %}
     <div aria-hidden="true" class="wrap-instructor-info">
@@ -32,10 +32,10 @@
             <td><%= answered_at %></td>
             <td>
                 <span class="score"><%= score %></span>
-                <input type="number" name="score-input" class="hidden"
-                 value="<%= score %>" placeholder="<%= maximum_score %>">
+                <input type="number" name="score-input" class="hidden" value="<%= score %>"
+                 placeholder="<%= maximum_score %>" max="<%= maximum_score %>">
             </td>
-            <td>
+            <td class="action-cell">
                 <div class="submit-grade-form hidden">
                     <button name="submit-grade" data-module-id="<%= module_id %>">Submit</button>
                     <button name="cancel">Cancel</button>
@@ -50,7 +50,12 @@
 
     <section aria-hidden="true" class="modal" id="submissions-list">
         <div class="inner-wrapper">
-            <header>{% trans "Submissions list" %}</header>
+            <header>
+                <title>{% trans "Submissions list" %}</title>
+                <form name="csv-download" method='GET' action=''>
+                    <button type='submit' class="csv-download" name="csv-download">Download CSV</button>
+                </form>
+            </header>
             <table class="submissions-list">
                 <thead>
                     <tr>
