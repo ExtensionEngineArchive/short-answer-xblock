@@ -116,4 +116,9 @@ function ShortAnswerXBlock(runtime, element) {
         success: populateSubmissions
     });
   });
+
+  $(function($) {
+    const csvDownloadUrl = runtime.handlerUrl(element, 'csv_download');
+    $('form[name=csv-download]', element).attr('action', csvDownloadUrl);
+  });
 }

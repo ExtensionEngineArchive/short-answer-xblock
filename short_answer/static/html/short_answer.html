@@ -50,7 +50,12 @@
 
     <section aria-hidden="true" class="modal" id="submissions-list">
         <div class="inner-wrapper">
-            <header>{% trans "Submissions list" %}</header>
+            <header>
+                <title>{% trans "Submissions list" %}</title>
+                <form name="csv-download" method='GET' action=''>
+                    <button type='submit' class="csv-download" name="csv-download">Download CSV</button>
+                </form>
+            </header>
             <table class="submissions-list">
                 <thead>
                     <tr>

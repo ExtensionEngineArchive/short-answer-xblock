@@ -1,12 +1,14 @@
 """Short Answer XBlock."""
 import datetime
+from io import BytesIO
 import json
 
 import pytz
+import unicodecsv
 from django.contrib.auth.models import User
 from django.template import Context, Template
-from django.utils.translation import ugettext_lazy as _  # pylint: disable=import-error
-from webob.response import Response  # pylint: disable=import-error
+from django.utils.translation import ugettext_lazy as _
+from webob.response import Response
 
 from courseware.models import StudentModule
 from student.models import CourseEnrollment
@@ -16,6 +18,17 @@ import pkg_resources
 from xblock.core import XBlock
 from xblock.fields import DateTime, Float, Integer, Scope, String
 from xblock.fragment import Fragment
+
+
+def create_csv_row(row):
+    """
+    Covert a list into a CSV row.
+    """
+    stream = BytesIO()
+    writer = unicodecsv.writer(stream, encoding='utf-8')
+    writer.writerow(row)
+    stream.seek(0)
+    return stream.read()
 
 
 def load_resource(resource_path):
@@ -39,7 +52,9 @@ def render_template(template_path, context=None):
 
 
 def resource_string(path):
-    """Handy helper for getting resources from our kit."""
+    """
+    Handy helper for getting resources from our kit.
+    """
     data = pkg_resources.resource_string(__name__, path)
     return data.decode("utf8")
 
@@ -111,11 +126,15 @@ class ShortAnswerXBlock(XBlock):
 
     @property
     def user(self):
-        """Retrieve the user object from the user_id in xmodule_runtime."""
+        """
+        Retrieve the user object from the user_id in xmodule_runtime.
+        """
         return User.objects.get(id=self.xmodule_runtime.user_id)
 
     def passed_due(self):
-        """Return true if the due date has passed."""
+        """
+        Return true if the due date has passed.
+        """
         now = datetime.datetime.utcnow().replace(tzinfo=pytz.utc)
         due = get_extended_due_date(self)
         if due is not None:
@@ -123,7 +142,9 @@ class ShortAnswerXBlock(XBlock):
         return False
 
     def studio_view(self, context=None):
-        """View for the form when editing this block in Studio."""
+        """
+        View for the form when editing this block in Studio.
+        """
         cls = type(self)
         context['fields'] = (
             (cls.display_name, getattr(self, 'display_name', ''), 'input', 'text'),
@@ -161,7 +182,9 @@ class ShortAnswerXBlock(XBlock):
 
     @XBlock.json_handler
     def student_submission(self, data, suffix=''):  # pylint: disable=unused-argument
-        """Handle the student's answer submission."""
+        """
+        Handle the student's answer submission.
+        """
         if self.passed_due():
             return Response(
                 status_code=400,
@@ -173,14 +196,18 @@ class ShortAnswerXBlock(XBlock):
 
     @XBlock.json_handler
     def studio_submit(self, data, suffix=''):  # pylint: disable=unused-argument
-        """Handle the Studio edit form request."""
+        """
+        Handle the Studio edit form request.
+        """
         for key in data:
             setattr(self, key, data[key])
         return Response(status_code=201)
 
     @XBlock.json_handler
     def submit_grade(self, data, suffix=''):
-        """Handle the grade submission request."""
+        """
+        Handle the grade submission request.
+        """
         score = data.get('score')
         module_id = data.get('module_id')
         if not (score and module_id):
@@ -197,7 +224,9 @@ class ShortAnswerXBlock(XBlock):
 
     @XBlock.json_handler
     def remove_grade(self, data, suffix=''):
-        """Handle the grade removal request."""
+        """
+        Handle the grade removal request.
+        """
         module_id = data.get('module_id')
         if not module_id:
             return Response(
@@ -210,9 +239,10 @@ class ShortAnswerXBlock(XBlock):
         module.save()
         return Response(status_code=200)
 
-    @XBlock.handler
-    def answer_submissions(self, *args, **kwargs):
-        """Return a list of all enrolled students and their answer submission information."""
+    def get_submissions_list(self):
+        """
+        Return a list of all enrolled students and their answer submission information.
+        """
         enrollments = CourseEnrollment.objects.filter(
             course_id=self.course_id,
             is_active=True
@@ -241,4 +271,39 @@ class ShortAnswerXBlock(XBlock):
                 'module_id': module.id,
                 'score': module.grade,
             })
+        return submissions_list
+
+    @XBlock.handler
+    def answer_submissions(self, *args, **kwargs):
+        """
+        Return the submission information of the enrolled students.
+        """
+        submissions_list = self.get_submissions_list()
         return Response(status_code=200, body=json.dumps(submissions_list))
+
+    def create_csv(self):
+        """
+        CSV file generator. Yields a CSV line in each iteration.
+        """
+        submission_list = self.get_submissions_list()
+        yield create_csv_row(['Name', 'Email', 'Answer', 'Answered at', 'Score'])
+
+        for entry in submission_list:
+            yield create_csv_row([
+                entry.get('fullname'),
+                entry.get('email'),
+                entry.get('answer', ''),
+                entry.get('answered_at', ''),
+                entry.get('score')
+            ])
+
+    @XBlock.handler
+    def csv_download(self, *args, **kwargs):
+        """
+        Handles the CSV download request.
+        """
+        response = Response(content_type='text/csv')
+        response.content_disposition = 'attachment; filename="short_answer_submissions.csv"'
+        response.app_iter = self.create_csv()
+
+        return response

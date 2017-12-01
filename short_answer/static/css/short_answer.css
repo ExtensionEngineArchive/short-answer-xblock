@@ -1,24 +1,55 @@
 /* CSS for ShortAnswerXBlock */
-.hidden { display:none; }
+.hidden {
+    display:none;
+}
 
 .short-answer-block textarea {
     width: 500px;
     height: 130px;
 }
 
-.feedback { color: #166e36; }
-.error { color: #c13840; }
+.feedback {
+    color: #166e36;
+}
+.error {
+    color: #c13840;
+}
 
 .short-answer-block .instructor-info-action:hover {
     color: #fff!important;
 }
 
-.short-answer-block .modal { width: 1000px; }
-.short-answer-block .modal th { padding-right: 20px; }
+.short-answer-block .modal {
+    width: 1000px;
+}
 
 .short-answer-block .modal .inner-wrapper {
     height: 800px;
     overflow-y: scroll;
+}
+
+.short-answer-block .modal header {
+    width: 900px;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.short-answer-block .modal header title {
+    display: inline-block;
+    float: left;
+}
+
+.short-answer-block .modal header form {
+    padding: 0;
+}
+
+.short-answer-block .modal header form button {
+    font-size: 13px;
+}
+
+.short-answer-block .modal .csv-download {
+    display: inline-block;
+    float: right;
 }
 
 .short-answer-block .modal header::before {
@@ -26,6 +57,7 @@
 }
 
 .short-answer-block .modal table {
+    width: 900px;
     font-family: verdana,arial,sans-serif;
     font-size:11px;
     color:#333333;
@@ -36,7 +68,7 @@
 
 .short-answer-block .modal table th {
     border-width: 1px;
-    padding: 8px;
+    padding: 8px 20px 8px 8px;
     border-style: solid;
     border-color: #666666;
     background-color: #dedede;
@@ -54,15 +86,30 @@
     padding: 7px 15px;
     width: 94px;
 }
+
 .short-answer-block .modal table button[name="toggle-answer"] {
     display: block;
     margin: 0 auto;
 }
-.short-answer-block .modal table input[name="score-input"] { width: 50px; }
-.short-answer-block .modal table .score-column { width: 55px; }
+
+.short-answer-block .modal table input[name="score-input"] {
+    width: 50px;
+}
+
+.short-answer-block .modal table .score-column {
+    width: 55px;
+}
+
 .short-answer-block .modal table .answer {
     display: block;
     width: 195px;
 }
-.short-answer-block .modal table .answer-column {width: 200px; }
-.short-answer-block .modal table span.no-answer { font-style: italic; }
+
+.short-answer-block .modal table .answer-column {
+    width: 200px;
+}
+
+.short-answer-block .modal table span.no-answer {
+    font-style: italic;
+}
+
