@@ -5,6 +5,7 @@ import json
 
 import pytz
 import unicodecsv
+from django.db.models import Q
 from django.contrib.auth.models import User
 from django.template import Context, Template
 from django.utils.translation import ugettext_lazy as _
@@ -252,7 +253,7 @@ class ShortAnswerXBlock(XBlock):
         enrollments = CourseEnrollment.objects.filter(
             course_id=self.course_id,
             is_active=True
-        )
+        ).exclude(Q(user__is_staff=True) | Q(user__is_superuser=True))
         submissions_list = []
 
         for enrollment in enrollments:
