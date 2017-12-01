@@ -1,9 +1,70 @@
+{% load i18n %}
+
 <div class="short-answer-block">
     <div class="description">
-        <p>Submit your questions and observations in 1-2 short paragraphs below.</p>
+        <p>{{ description }}</p>
     </div>
-    <textarea id="" class="short-answer" name="short-answer"></textarea>
+    <textarea id="" class="short-answer" name="short-answer">{{ answer }}</textarea>
     <p class="error"></p>
-    <div class="feedback {% if not submission %}hidden{% endif %}"><p>{{ feedback }}</p></div>
-    <button type="submit" class="btn-submit">Submit</button>
+    {% if feedback %}
+    <div class="feedback {% if not answer %}hidden{% endif %}"><p>{{ feedback }}</p></div>
+    {% endif %}
+    <button type="submit" class="btn-submit">{% trans "Submit" %}</button>
+
+    {% if is_course_staff %}
+    <div aria-hidden="true" class="wrap-instructor-info">
+      <a class="instructor-info-action" id="submissions-button"
+         href="#submissions-list">{% trans "Submissions" %}</a>
+    </div>
+
+    <script type="text/template" id="answer-table-row-tpl">
+        <tr>
+            <td><%= fullname %></td>
+            <td><%= email %></td>
+            <td>
+                <% if (answer) { %>
+                <span class="answer hidden"><%= answer %></span>
+                <button name="toggle-answer">Show answer</button>
+                <% } else { %>
+                <span class="no-answer">Answer not submitted</span>
+                <% } %>
+            </td>
+            <td><%= answered_at %></td>
+            <td>
+                <span class="score"><%= score %></span>
+                <input type="number" name="score-input" class="hidden"
+                 value="<%= score %>" placeholder="<%= maximum_score %>">
+            </td>
+            <td>
+                <div class="submit-grade-form hidden">
+                    <button name="submit-grade" data-module-id="<%= module_id %>">Submit</button>
+                    <button name="cancel">Cancel</button>
+                </div>
+                <div class="action-buttons">
+                    <button name="change-grade">Change grade</button>
+                    <button name="remove-grade" data-module-id="<%= module_id %>">Remove grade</button>
+                </div>
+            </td>
+        </tr>
+    </script>
+
+    <section aria-hidden="true" class="modal" id="submissions-list">
+        <div class="inner-wrapper">
+            <header>{% trans "Submissions list" %}</header>
+            <table class="submissions-list">
+                <thead>
+                    <tr>
+                        <th>{% trans "Name" %}</th>
+                        <th>{% trans "Email" %}</th>
+                        <th class="answer-column">{% trans "Answer" %}</th>
+                        <th>{% trans "Submitted at" %}</th>
+                        <th class="score-column">{% trans "Grade" %}</th>
+                        <th>{% trans "Actions" %}</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </section>
+    {% endif %}
 </div>

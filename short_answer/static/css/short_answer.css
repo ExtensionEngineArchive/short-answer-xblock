@@ -1,4 +1,5 @@
 /* CSS for ShortAnswerXBlock */
+.hidden { display:none; }
 
 .short-answer-block textarea {
     width: 500px;
@@ -7,5 +8,61 @@
 
 .feedback { color: #166e36; }
 .error { color: #c13840; }
-.hidden { display:none; }
 
+.short-answer-block .instructor-info-action:hover {
+    color: #fff!important;
+}
+
+.short-answer-block .modal { width: 1000px; }
+.short-answer-block .modal th { padding-right: 20px; }
+
+.short-answer-block .modal .inner-wrapper {
+    height: 800px;
+    overflow-y: scroll;
+}
+
+.short-answer-block .modal header::before {
+    background-image: none!important;
+}
+
+.short-answer-block .modal table {
+    font-family: verdana,arial,sans-serif;
+    font-size:11px;
+    color:#333333;
+    border-width: 1px;
+    border-color: #666666;
+    border-collapse: collapse;
+}
+
+.short-answer-block .modal table th {
+    border-width: 1px;
+    padding: 8px;
+    border-style: solid;
+    border-color: #666666;
+    background-color: #dedede;
+}
+
+.short-answer-block .modal table td {
+    border-width: 1px;
+    padding: 8px;
+    border-style: solid;
+    border-color: #666666;
+    background-color: #ffffff;
+}
+
+.short-answer-block .modal table button {
+    padding: 7px 15px;
+    width: 94px;
+}
+.short-answer-block .modal table button[name="toggle-answer"] {
+    display: block;
+    margin: 0 auto;
+}
+.short-answer-block .modal table input[name="score-input"] { width: 50px; }
+.short-answer-block .modal table .score-column { width: 55px; }
+.short-answer-block .modal table .answer {
+    display: block;
+    width: 195px;
+}
+.short-answer-block .modal table .answer-column {width: 200px; }
+.short-answer-block .modal table span.no-answer { font-style: italic; }

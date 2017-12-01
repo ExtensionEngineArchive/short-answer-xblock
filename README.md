@@ -11,6 +11,16 @@ this application's root directory run:
 $ pip install -r requirements.txt
 ```
 
+### JS Dependencies
+
+Globally accessable:
+* jQuery
+* underscore.js
+* moment.js
+
+If you are using this block in the `eucalyptus.1` release or newer these
+dependencies are already available.
+
 ## Enabling in Studio
 
 In Studio go to the course where you want to use this block and open `Advanced
