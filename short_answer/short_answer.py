@@ -2,6 +2,7 @@
 import datetime
 import json
 
+import pytz
 from django.contrib.auth.models import User
 from django.template import Context, Template
 from django.utils.translation import ugettext_lazy as _  # pylint: disable=import-error
@@ -9,6 +10,7 @@ from webob.response import Response  # pylint: disable=import-error
 
 from courseware.models import StudentModule
 from student.models import CourseEnrollment
+from xmodule.util.duedate import get_extended_due_date
 
 import pkg_resources
 from xblock.core import XBlock
@@ -112,6 +114,14 @@ class ShortAnswerXBlock(XBlock):
         """Retrieve the user object from the user_id in xmodule_runtime."""
         return User.objects.get(id=self.xmodule_runtime.user_id)
 
+    def passed_due(self):
+        """Return true if the due date has passed."""
+        now = datetime.datetime.utcnow().replace(tzinfo=pytz.utc)
+        due = get_extended_due_date(self)
+        if due is not None:
+            return now > due
+        return False
+
     def studio_view(self, context=None):
         """View for the form when editing this block in Studio."""
         cls = type(self)
@@ -140,6 +150,7 @@ class ShortAnswerXBlock(XBlock):
             'description': self.description,
             'feedback': self.feedback,
             'is_course_staff': getattr(self.xmodule_runtime, 'user_is_staff', False),
+            'passed_due': self.passed_due(),
         })
         frag = Fragment()
         frag.add_content(render_template('static/html/short_answer.html', context))
@@ -151,6 +162,11 @@ class ShortAnswerXBlock(XBlock):
     @XBlock.json_handler
     def student_submission(self, data, suffix=''):  # pylint: disable=unused-argument
         """Handle the student's answer submission."""
+        if self.passed_due():
+            return Response(
+                status_code=400,
+                body=json.dumps({'error': 'Submission due date has passed.'})
+            )
         self.answer = data.get('submission')
         self.answered_at = datetime.datetime.now()
         return Response(status_code=201)
