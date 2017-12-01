@@ -216,6 +216,12 @@ class ShortAnswerXBlock(XBlock):
                 body=json.dumps({'error': 'Missing score and/or module_id parameters.'})
             )
 
+        if int(score) > self.maximum_score:
+            return Response(
+                status_code=400,
+                body=json.dumps({'error': 'Submitted score larger than the maximum allowed.'})
+            )
+
         module = StudentModule.objects.get(pk=module_id)
         module.grade = float(score)
         module.max_grade = self.maximum_score

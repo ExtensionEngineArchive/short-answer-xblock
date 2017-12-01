@@ -32,8 +32,8 @@
             <td><%= answered_at %></td>
             <td>
                 <span class="score"><%= score %></span>
-                <input type="number" name="score-input" class="hidden"
-                 value="<%= score %>" placeholder="<%= maximum_score %>">
+                <input type="number" name="score-input" class="hidden" value="<%= score %>"
+                 placeholder="<%= maximum_score %>" max="<%= maximum_score %>">
             </td>
             <td>
                 <div class="submit-grade-form hidden">
