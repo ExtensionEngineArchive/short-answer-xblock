@@ -29,9 +29,10 @@
 }
 
 .short-answer-block .modal header {
-    width: 900px;
+    margin: 0 auto;
     padding-left: 0;
     padding-right: 0;
+    width: 900px;
 }
 
 .short-answer-block .modal header title {
@@ -57,6 +58,7 @@
 }
 
 .short-answer-block .modal table {
+    margin: 0 auto;
     width: 900px;
     font-family: verdana,arial,sans-serif;
     font-size:11px;
@@ -80,6 +82,10 @@
     border-style: solid;
     border-color: #666666;
     background-color: #ffffff;
+}
+
+.short-answer-block .action-cell {
+    text-align: center;
 }
 
 .short-answer-block .modal table button {
