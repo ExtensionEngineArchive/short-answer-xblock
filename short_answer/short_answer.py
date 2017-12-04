@@ -4,26 +4,31 @@ from io import BytesIO
 import json
 
 import pytz
-import unicodecsv
+import unicodecsv  # pylint: disable=import-error
 from django.db.models import Q
 from django.contrib.auth.models import User
 from django.template import Context, Template
 from django.utils.translation import ugettext_lazy as _
-from webob.response import Response
+from webob.response import Response  # pylint: disable=import-error
 
-from courseware.models import StudentModule
-from student.models import CourseEnrollment
-from xmodule.util.duedate import get_extended_due_date
+from courseware.models import StudentModule  # pylint: disable=import-error
+from student.models import CourseEnrollment  # pylint: disable=import-error
+from xmodule.util.duedate import get_extended_due_date  # pylint: disable=import-error
 
 import pkg_resources
-from xblock.core import XBlock
-from xblock.fields import DateTime, Float, Integer, Scope, String
-from xblock.fragment import Fragment
+from xblock.core import XBlock  # pylint: disable=import-error
+from xblock.fields import DateTime, Float, Integer, Scope, String  # pylint: disable=import-error
+from xblock.fragment import Fragment  # pylint: disable=import-error
 
 
 def create_csv_row(row):
     """
-    Covert a list into a CSV row.
+    Convert a list into a CSV row.
+
+    Args:
+        row (list) - one CSV line
+    Returns:
+        A string with comma-separated values from the row list.
     """
     stream = BytesIO()
     writer = unicodecsv.writer(stream, encoding='utf-8')
@@ -63,7 +68,7 @@ def resource_string(path):
 class ShortAnswerXBlock(XBlock):
     """
     This block defines a Short Answer. Students can submit a short answer and
-    instructors can view, grade and add feedback to it.
+    instructors can view, grade, add feedback and download a CSV of all submissions.
     """
     has_score = True
     icons_class = 'problem'
@@ -182,7 +187,7 @@ class ShortAnswerXBlock(XBlock):
         return frag
 
     @XBlock.json_handler
-    def student_submission(self, data, suffix=''):  # pylint: disable=unused-argument
+    def student_submission(self, data, _):
         """
         Handle the student's answer submission.
         """
@@ -196,7 +201,7 @@ class ShortAnswerXBlock(XBlock):
         return Response(status_code=201)
 
     @XBlock.json_handler
-    def studio_submit(self, data, suffix=''):  # pylint: disable=unused-argument
+    def submit_edit(self, data, _):
         """
         Handle the Studio edit form request.
         """
@@ -205,16 +210,21 @@ class ShortAnswerXBlock(XBlock):
         return Response(status_code=201)
 
     @XBlock.json_handler
-    def submit_grade(self, data, suffix=''):
+    def submit_grade(self, data, _):
         """
         Handle the grade submission request.
         """
         score = data.get('score')
         module_id = data.get('module_id')
         if not (score and module_id):
+            error_msg_tpl = 'Missing {params} parameter.'
+            if not (score or module_id):
+                missing_params = 'score and module_id'
+            else:
+                missing_params = 'score' if not score else 'module_id'
             return Response(
                 status_code=400,
-                body=json.dumps({'error': 'Missing score and/or module_id parameters.'})
+                body=json.dumps({'error': error_msg_tpl.format(params=missing_params)})
             )
 
         if int(score) > self.maximum_score:
@@ -229,8 +239,9 @@ class ShortAnswerXBlock(XBlock):
         module.save()
         return Response(status_code=200, body=json.dumps({'new_score': module.grade}))
 
+    # pylint: disable=no-self-use
     @XBlock.json_handler
-    def remove_grade(self, data, suffix=''):
+    def remove_grade(self, data, _):
         """
         Handle the grade removal request.
         """
@@ -281,7 +292,7 @@ class ShortAnswerXBlock(XBlock):
         return submissions_list
 
     @XBlock.handler
-    def answer_submissions(self, *args, **kwargs):
+    def answer_submissions(self, *args, **kwargs):  # pylint: disable=unused-argument
         """
         Return the submission information of the enrolled students.
         """
@@ -305,7 +316,7 @@ class ShortAnswerXBlock(XBlock):
             ])
 
     @XBlock.handler
-    def csv_download(self, *args, **kwargs):
+    def csv_download(self, *args, **kwargs):  # pylint: disable=unused-argument
         """
         Handles the CSV download request.
         """

@@ -1,12 +1,14 @@
 /* Javascript for Studio part of ShortAnswerXBlock. */
 function ShortAnswerStudioXBlock(runtime, element) {
 
-  // Send a POST request to save the form data.
+  /**
+   * Send a POST request to save the form data.
+   */
   $('.save-button', element).click(function(event) {
     event.preventDefault();
 
     const $btn = $(event.targetElement);
-    const handlerUrl = runtime.handlerUrl(element, 'studio_submit');
+    const handlerUrl = runtime.handlerUrl(element, 'submit_edit');
     const data = {
       'display_name': $('#display_name-input', element).val(),
       'description': $('#description-input', element).val(),
@@ -23,12 +25,14 @@ function ShortAnswerStudioXBlock(runtime, element) {
         window.location.reload(false);
       },
       error: function(err) {
-        console.log('Error: ', err);
+        console.error('Error: ', err);
       }
     });
   });
 
-  // Close modal on Cancel.
+  /**
+   * Close modal on Cancel button click event.
+   */
   $('.cancel-button', element).click(function(event) {
     runtime.notify('cancel', {});
   });
