@@ -1,6 +1,16 @@
 /* Javascript for ShortAnswerXBlock. */
 function ShortAnswerXBlock(runtime, element) {
 
+  function displayError(cls, err) {
+    const msg = (err.responseJSON) ? err.responseJSON.error || err.statusText : 'An error occured.';
+    console.error(err);
+    $(cls).text('Error: ' + msg);
+  }
+
+  function clearErrors() {
+    $('.error, .modal-error').text('');
+  }
+
   function closeEditing() {
     $('span.score', element).removeClass('hidden');
     $('input[name=score-input]', element).addClass('hidden');
@@ -12,6 +22,7 @@ function ShortAnswerXBlock(runtime, element) {
     const $tableBody = $('.submissions-list tbody', element);
     const template = _.template($('#answer-table-row-tpl', element).text());
     $tableBody.empty();
+    clearErrors();
 
     submissions.forEach(function(submission) {
       submission.answer = submission.answer || '';
@@ -46,6 +57,7 @@ function ShortAnswerXBlock(runtime, element) {
       const moduleId = $(this).data('module-id');
       const removeGradeHandlerUrl = runtime.handlerUrl(element, 'remove_grade');
 
+      clearErrors();
       $.ajax({
         url: removeGradeHandlerUrl,
         method: 'POST',
@@ -54,6 +66,9 @@ function ShortAnswerXBlock(runtime, element) {
         }),
         success: function() {
           $scoreCell.text('');
+        },
+        error: function(err) {
+          displayError('.modal-error', err);
         }
       })
     });
@@ -65,6 +80,7 @@ function ShortAnswerXBlock(runtime, element) {
         const score = $('input[name=score-input]', $row).val();
 
         closeEditing();
+        clearErrors();
         $.ajax({
           url: gradingHandlerUrl,
           method: 'POST',
@@ -74,6 +90,9 @@ function ShortAnswerXBlock(runtime, element) {
           }),
           success: function(data) {
             $('.score', $row).text(data.new_score)
+          },
+          error: function(err) {
+            displayError('.modal-error', err);
           }
         });
       });
@@ -83,13 +102,12 @@ function ShortAnswerXBlock(runtime, element) {
 
   $('button[type=submit]', element).click(function(event) {
     const $button = $(event.targetElement);
-    const $error = $('p.error', element);
     const $feedback = $('.feedback', element);
     const handlerUrl = runtime.handlerUrl(element, 'student_submission');
     const submission = $('textarea', element).val();
 
     $button.attr('disabled', 'disabled');
-    $error.text('');
+    clearErrors();
 
     $.ajax({
       url: handlerUrl,
@@ -100,8 +118,7 @@ function ShortAnswerXBlock(runtime, element) {
         $button.removeAttr('disabled');
       },
       error: function(err) {
-        $error.text('An error occured.');
-        console.error('Error: ', err);
+        displayError('.error', err);
       }
     });
   });
@@ -110,10 +127,15 @@ function ShortAnswerXBlock(runtime, element) {
     .leanModal({position: 'relative', top: 50})
     .click(function(event) {
       const handlerUrl = runtime.handlerUrl(element, 'answer_submissions');
+
+      clearErrors();
       $.ajax({
         url: handlerUrl,
         method: 'GET',
-        success: populateSubmissions
+        success: populateSubmissions,
+        error: function(err) {
+          displayError('.modal-error', err);
+        }
     });
   });
 

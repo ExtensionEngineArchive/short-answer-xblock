@@ -11,8 +11,15 @@
 .feedback {
     color: #166e36;
 }
-.error {
+.error,
+.modal-error {
     color: #c13840;
+}
+
+.modal-error {
+    display: block;
+    width: 900px;
+    margin: 0 auto;
 }
 
 .short-answer-block .instructor-info-action:hover {

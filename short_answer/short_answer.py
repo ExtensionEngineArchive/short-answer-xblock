@@ -217,9 +217,14 @@ class ShortAnswerXBlock(XBlock):
         score = data.get('score')
         module_id = data.get('module_id')
         if not (score and module_id):
+            error_msg_tpl = 'Missing {params} parameter.'
+            if not (score or module_id):
+                missing_params = 'score and module_id'
+            else:
+                missing_params = 'score' if not score else 'module_id'
             return Response(
                 status_code=400,
-                body=json.dumps({'error': 'Missing score and/or module_id parameters.'})
+                body=json.dumps({'error': error_msg_tpl.format(params=missing_params)})
             )
 
         if int(score) > self.maximum_score:
