@@ -1,6 +1,10 @@
 /* Javascript for ShortAnswerXBlock. */
 function ShortAnswerXBlock(runtime, element) {
 
+  /**
+   * Display errors from the server or a default error message if no error
+   * message was received from the server.
+   */
   function displayError(cls, err) {
     const msg = (err.responseJSON) ? err.responseJSON.error || err.statusText : 'An error occured.';
     console.error(err);
@@ -11,6 +15,9 @@ function ShortAnswerXBlock(runtime, element) {
     $('.error, .modal-error').text('');
   }
 
+  /**
+   * Close the score editing fields in the modal window.
+   */
   function closeEditing() {
     $('span.score', element).removeClass('hidden');
     $('input[name=score-input]', element).addClass('hidden');
@@ -18,9 +25,14 @@ function ShortAnswerXBlock(runtime, element) {
     $('.action-buttons', element).removeClass('hidden')
   }
 
+  /**
+   * Populate the submissions table in the modal window and
+   * bind all the buttons for each row.
+   */
   function populateSubmissions(submissions) {
     const $tableBody = $('.submissions-list tbody', element);
     const template = _.template($('#answer-table-row-tpl', element).text());
+
     $tableBody.empty();
     clearErrors();
 
@@ -39,12 +51,14 @@ function ShortAnswerXBlock(runtime, element) {
     $('button[name=toggle-answer]').click(function() {
       const $answer = $(this).siblings('.answer');
       const btnText = ($answer.hasClass('hidden')) ? 'Hide answer' : 'Show answer';
+
       $(this).text(btnText);
       $answer.toggleClass('hidden');
     });
 
     $('button[name=change-grade]').click(function() {
         const $row = $(this).parents('tr');
+
         closeEditing();
         $('.score', $row).addClass('hidden');
         $('input[name=score-input]', $row).removeClass('hidden');
@@ -70,7 +84,7 @@ function ShortAnswerXBlock(runtime, element) {
         error: function(err) {
           displayError('.modal-error', err);
         }
-      })
+      });
     });
 
     $('button[name=submit-grade]', element).click(function() {
@@ -100,6 +114,10 @@ function ShortAnswerXBlock(runtime, element) {
     $('button[name=cancel]').click(closeEditing);
   }
 
+  /**
+   * Handler for the 'Submit' answer click. Posts the score to the server's
+   * submission endpoint and displays feedback and error if any occur.
+   */
   $('button[type=submit]', element).click(function(event) {
     const $button = $(event.targetElement);
     const $feedback = $('.feedback', element);
@@ -123,6 +141,9 @@ function ShortAnswerXBlock(runtime, element) {
     });
   });
 
+  /**
+   * Display the modal window.
+   */
   $('#submissions-button', element)
     .leanModal({position: 'relative', top: 50})
     .click(function(event) {
