@@ -6,7 +6,7 @@ function ShortAnswerStudioXBlock(runtime, element) {
     event.preventDefault();
 
     const $btn = $(event.targetElement);
-    const handlerUrl = runtime.handlerUrl(element, 'studio_submit');
+    const handlerUrl = runtime.handlerUrl(element, 'submit_edit');
     const data = {
       'display_name': $('#display_name-input', element).val(),
       'description': $('#description-input', element).val(),
