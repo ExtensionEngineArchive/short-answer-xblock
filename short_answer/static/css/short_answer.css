@@ -1,6 +1,11 @@
 /* CSS for ShortAnswerXBlock */
+.action-buttons,
+.submit-grade-form {
+    width: 200px;
+}
+
 .hidden {
-    display:none;
+    display: none;
 }
 
 .short-answer-block textarea {
@@ -125,4 +130,3 @@
 .short-answer-block .modal table span.no-answer {
     font-style: italic;
 }
-
