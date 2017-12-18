@@ -4,12 +4,17 @@
     <div class="description">
         <p>{{ description }}</p>
     </div>
-    <textarea class="short-answer" name="short-answer">{{ answer }}</textarea>
+    <textarea class="short-answer" name="short-answer"
+              {% if grades_published %}disabled{% endif %}>{{ answer }}</textarea>
     <p class="error"></p>
     {% if feedback %}
     <div class="feedback {% if not answer %}hidden{% endif %}"><p>{{ feedback }}</p></div>
     {% endif %}
-    <button type="submit" class="btn-submit answer-submission-button" {% if passed_due %}disabled{% endif %}>{% trans "Submit" %}</button>
+    {% if score and grades_published %}
+        <div class="user-score"><p>Your score is: {{ score|floatformat }} / {{ maximum_score }}</p></div>
+    {% else %}
+        <button type="submit" class="btn-submit answer-submission-button" {% if passed_due %}disabled{% endif %}>{% trans "Submit" %}</button>
+    {% endif %}
 
     {% if is_course_staff %}
     <div aria-hidden="true" class="wrap-instructor-info">
@@ -56,6 +61,10 @@
                     <button type='submit' class="csv-download" name="csv-download">Download CSV</button>
                 </form>
             </header>
+            <div class="grades-published">
+                <input name="grades-published" type="checkbox" {% if grades_published %} checked {% endif %}>
+                <label for="grades-published">Publish grades</label>
+            </div>
             <p class="modal-error"></p>
             <table class="submissions-list">
                 <thead>

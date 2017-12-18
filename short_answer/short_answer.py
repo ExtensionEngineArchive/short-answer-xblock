@@ -1,7 +1,7 @@
 """Short Answer XBlock."""
 import datetime
-from io import BytesIO
 import json
+from io import BytesIO
 
 import pytz
 import unicodecsv  # pylint: disable=import-error
@@ -17,7 +17,7 @@ from xmodule.util.duedate import get_extended_due_date  # pylint: disable=import
 
 import pkg_resources
 from xblock.core import XBlock  # pylint: disable=import-error
-from xblock.fields import DateTime, Float, Integer, Scope, String  # pylint: disable=import-error
+from xblock.fields import Boolean, DateTime, Float, Integer, Scope, String  # pylint: disable=import-error
 from xblock.fragment import Fragment  # pylint: disable=import-error
 
 
@@ -130,6 +130,25 @@ class ShortAnswerXBlock(XBlock):
         help=_('Defines the number of points the problem is worth.'),
     )
 
+    grades_published = Boolean(
+        display_name='Display grade to students',
+        scope=Scope.user_state_summary,
+        default=False,
+        help='Indicates if the grades will be displayed to students.'
+    )
+
+    @property
+    def student_grade(self):
+        """
+        Retrieve the manually added grade for the current user.
+        """
+        module = StudentModule.objects.get(
+            course_id=self.course_id,
+            module_state_key=self.location,
+            student=self.user.id,
+        )
+        return module.grade
+
     @property
     def user(self):
         """
@@ -176,8 +195,11 @@ class ShortAnswerXBlock(XBlock):
             'answer': self.answer,
             'description': self.description,
             'feedback': self.feedback,
+            'grades_published': self.grades_published,
             'is_course_staff': getattr(self.xmodule_runtime, 'user_is_staff', False),
+            'maximum_score': self.maximum_score,
             'passed_due': self.passed_due(),
+            'score': self.student_grade,
         })
         frag = Fragment()
         frag.add_content(render_template('static/html/short_answer.html', context))
@@ -232,7 +254,6 @@ class ShortAnswerXBlock(XBlock):
                 status_code=400,
                 body=json.dumps({'error': 'Submitted score larger than the maximum allowed.'})
             )
-
         module = StudentModule.objects.get(pk=module_id)
         module.grade = float(score)
         module.max_grade = self.maximum_score
@@ -256,6 +277,11 @@ class ShortAnswerXBlock(XBlock):
         module.grade = None
         module.save()
         return Response(status_code=200)
+
+    @XBlock.handler
+    def update_grades_published(self, request, suffix=''):
+        self.grades_published = json.loads(request.params.get('grades_published'))
+        return Response(status=200)
 
     def get_submissions_list(self):
         """
