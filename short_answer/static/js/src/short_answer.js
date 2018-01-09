@@ -118,7 +118,7 @@ function ShortAnswerXBlock(runtime, element) {
    * Handler for the 'Submit' answer click. Posts the score to the server's
    * submission endpoint and displays feedback and error if any occur.
    */
-  $('button[type=submit]', element).click(function(event) {
+  $('#answer-submission-button', element).click(function(event) {
     const $button = $(event.targetElement);
     const $feedback = $('.feedback', element);
     const handlerUrl = runtime.handlerUrl(element, 'student_submission');
