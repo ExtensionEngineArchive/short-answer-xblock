@@ -9,7 +9,7 @@
     {% if feedback %}
     <div class="feedback {% if not answer %}hidden{% endif %}"><p>{{ feedback }}</p></div>
     {% endif %}
-    <button type="submit" class="btn-submit" {% if passed_due %}disabled{% endif %}>{% trans "Submit" %}</button>
+    <button id="answer-submission-button" type="submit" class="btn-submit" {% if passed_due %}disabled{% endif %}>{% trans "Submit" %}</button>
 
     {% if is_course_staff %}
     <div aria-hidden="true" class="wrap-instructor-info">
