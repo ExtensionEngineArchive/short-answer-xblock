@@ -103,7 +103,7 @@ class ShortAnswerXBlock(XBlock):
 
     feedback = String(
         display_name=_('Instructor feedback'),
-        default='',
+        default=_('Your answer was submitted successfully.'),
         scope=Scope.settings,
         help=_('Message that will be shown to the student once the student submits an answer.')
     )
