@@ -4,12 +4,12 @@
     <div class="description">
         <p>{{ description }}</p>
     </div>
-    <textarea id="" class="short-answer" name="short-answer">{{ answer }}</textarea>
+    <textarea class="short-answer" name="short-answer">{{ answer }}</textarea>
     <p class="error"></p>
     {% if feedback %}
     <div class="feedback {% if not answer %}hidden{% endif %}"><p>{{ feedback }}</p></div>
     {% endif %}
-    <button type="submit" class="btn-submit" {% if passed_due %}disabled{% endif %}>{% trans "Submit" %}</button>
+    <button type="submit" class="btn-submit answer-submission-button" {% if passed_due %}disabled{% endif %}>{% trans "Submit" %}</button>
 
     {% if is_course_staff %}
     <div aria-hidden="true" class="wrap-instructor-info">
