@@ -17,11 +17,10 @@
 
     {% if is_course_staff %}
     <div aria-hidden="true" class="wrap-instructor-info">
-      <a class="instructor-info-action" id="submissions-button"
-         href="#submissions-list">{% trans "Submissions" %}</a>
+      <a class="instructor-info-action submissions-button" href="#submissions-list-{{module_id}}">{% trans "Submissions" %}</a>
     </div>
 
-    <script type="text/template" id="answer-table-row-tpl">
+    <script type="text/template" class="answer-table-row-tpl">
         <tr>
             <td><%= fullname %></td>
             <td><%= email %></td>
@@ -52,7 +51,7 @@
         </tr>
     </script>
 
-    <section aria-hidden="true" class="modal" id="submissions-list">
+    <section aria-hidden="true" class="modal" id="submissions-list-{{module_id}}">
         <div class="inner-wrapper">
             <header>
                 <title>{% trans "Submissions list" %}</title>
