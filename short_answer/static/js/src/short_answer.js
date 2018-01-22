@@ -31,7 +31,7 @@ function ShortAnswerXBlock(runtime, element) {
    */
   function populateSubmissions(submissions) {
     const $tableBody = $('.submissions-list tbody', element);
-    const template = _.template($('#answer-table-row-tpl', element).text());
+    const template = _.template($('.answer-table-row-tpl', element).text());
 
     $tableBody.empty();
     clearErrors();
@@ -60,7 +60,7 @@ function ShortAnswerXBlock(runtime, element) {
       })
     });
 
-    $('button[name=toggle-answer]').click(function() {
+    $('button[name=toggle-answer]', element).click(function() {
       const $answer = $(this).siblings('.answer');
       const btnText = ($answer.hasClass('hidden')) ? 'Hide answer' : 'Show answer';
 
@@ -68,7 +68,7 @@ function ShortAnswerXBlock(runtime, element) {
       $answer.toggleClass('hidden');
     });
 
-    $('button[name=change-grade]').click(function() {
+    $('button[name=change-grade]', element).click(function() {
         const $row = $(this).parents('tr');
 
         closeEditing();
@@ -78,7 +78,7 @@ function ShortAnswerXBlock(runtime, element) {
         $('.action-buttons', $row).addClass('hidden');
       });
 
-    $('button[name=remove-grade]').click(function() {
+    $('button[name=remove-grade]', element).click(function() {
       const $scoreCell = $(this).parents('tr').find('.score');
       const moduleId = $(this).data('module-id');
       const removeGradeHandlerUrl = runtime.handlerUrl(element, 'remove_grade');
@@ -123,7 +123,7 @@ function ShortAnswerXBlock(runtime, element) {
         });
       });
 
-    $('button[name=cancel]').click(closeEditing);
+    $('button[name=cancel]', element).click(closeEditing);
   }
 
   /**
@@ -156,7 +156,7 @@ function ShortAnswerXBlock(runtime, element) {
   /**
    * Display the modal window.
    */
-  $('#submissions-button', element)
+  $('.submissions-button', element)
     .leanModal({position: 'relative', top: 50})
     .click(function(event) {
       const handlerUrl = runtime.handlerUrl(element, 'answer_submissions');

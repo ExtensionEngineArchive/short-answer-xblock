@@ -138,16 +138,23 @@ class ShortAnswerXBlock(XBlock):
     )
 
     @property
+    def module(self):
+        """
+        Retrieve the student module for current user.
+        """
+        module, _ = StudentModule.objects.get_or_create(
+            course_id=self.course_id,
+            module_state_key=self.location,
+            student=self.user,
+        )
+        return module
+
+    @property
     def student_grade(self):
         """
         Retrieve the manually added grade for the current user.
         """
-        module = StudentModule.objects.get(
-            course_id=self.course_id,
-            module_state_key=self.location,
-            student=self.user.id,
-        )
-        return module.grade
+        return self.module.grade
 
     @property
     def user(self):
@@ -198,6 +205,7 @@ class ShortAnswerXBlock(XBlock):
             'grades_published': self.grades_published,
             'is_course_staff': getattr(self.xmodule_runtime, 'user_is_staff', False),
             'maximum_score': self.maximum_score,
+            'module_id': self.module.id,  # Use the module id to generate different pop-up modals
             'passed_due': self.passed_due(),
             'score': self.student_grade,
         })
