@@ -48,6 +48,18 @@ function ShortAnswerXBlock(runtime, element) {
       $(template(submission)).appendTo($tableBody);
     });
 
+    // Save grades published value when checkbox clicked
+    $('input[name=grades-published]', element).change(function() {
+      var updateGradesPublishedUrl = runtime.handlerUrl(element, 'update_grades_published')
+      var url = updateGradesPublishedUrl + '?grades_published=' + this.checked;
+
+      $.get(url, function() {
+          console.log('Student grade visibility updated.');
+      }).fail(function() {
+          alert('Something went wrong. Please contact the support team.');
+      })
+    });
+
     $('button[name=toggle-answer]').click(function() {
       const $answer = $(this).siblings('.answer');
       const btnText = ($answer.hasClass('hidden')) ? 'Hide answer' : 'Show answer';
