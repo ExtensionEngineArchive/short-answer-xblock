@@ -4,8 +4,7 @@
     <div class="description">
         <p>{{ description }}</p>
     </div>
-    <textarea class="short-answer" name="short-answer"
-              {% if grades_published %}disabled{% endif %}>{{ answer }}</textarea>
+    <textarea class="short-answer" name="short-answer" {% if grades_published %}disabled{% endif %}>{{answer}}</textarea>
     <p class="error"></p>
     {% if feedback %}
     <div class="feedback {% if not answer %}hidden{% endif %}"><p>{{ feedback }}</p></div>
