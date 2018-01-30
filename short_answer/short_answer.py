@@ -213,7 +213,7 @@ class ShortAnswerXBlock(XBlock):
         frag.add_content(render_template('static/html/short_answer.html', context))
         frag.add_css(resource_string('static/css/short_answer.css'))
         frag.add_javascript(resource_string('static/js/src/short_answer.js'))
-        frag.initialize_js('ShortAnswerXBlock')
+        frag.initialize_js('ShortAnswerXBlock', {'maximumScore': self.maximum_score})
         return frag
 
     @XBlock.json_handler
@@ -257,7 +257,7 @@ class ShortAnswerXBlock(XBlock):
                 body=json.dumps({'error': error_msg_tpl.format(params=missing_params)})
             )
 
-        if int(score) > self.maximum_score:
+        if float(score) > self.maximum_score:
             return Response(
                 status_code=400,
                 body=json.dumps({'error': 'Submitted score larger than the maximum allowed.'})

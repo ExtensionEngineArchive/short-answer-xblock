@@ -1,5 +1,6 @@
 /* Javascript for ShortAnswerXBlock. */
-function ShortAnswerXBlock(runtime, element) {
+function ShortAnswerXBlock(runtime, element, options) {
+  const maxScore = options.maximumScore;
 
   /**
    * Display errors from the server or a default error message if no error
@@ -23,6 +24,13 @@ function ShortAnswerXBlock(runtime, element) {
     $('input[name=score-input]', element).addClass('hidden');
     $('.submit-grade-form', element).addClass('hidden');
     $('.action-buttons', element).removeClass('hidden')
+  }
+
+  /**
+   * Check if the value sent is a number between 0 and 100.
+   */
+  function is_score_valid(score) {
+    return score !== '' && !isNaN(score) && 0 <= score && score <= maxScore;
   }
 
   /**
@@ -100,10 +108,15 @@ function ShortAnswerXBlock(runtime, element) {
     });
 
     $('button[name=submit-grade]', element).click(function() {
-        const $row = $(this).parents('tr')
+        const $row = $(this).parents('tr');
         const moduleId = $(this).data('module-id');
         const gradingHandlerUrl = runtime.handlerUrl(element, 'submit_grade');
         const score = $('input[name=score-input]', $row).val();
+
+        if (!is_score_valid(score)) {
+          $('.modal-error', element).text('The grade should be a positive number between 0-' + maxScore);
+          return;
+        }
 
         closeEditing();
         clearErrors();
