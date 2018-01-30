@@ -9,7 +9,7 @@
     {% if feedback %}
     <div class="feedback {% if not answer %}hidden{% endif %}"><p>{{ feedback }}</p></div>
     {% endif %}
-    {% if score and grades_published %}
+    {% if score %}
         <div class="user-score"><p>Your score is: {{ score|floatformat }} / {{ maximum_score }}</p></div>
     {% else %}
         <button type="submit" class="btn-submit answer-submission-button" {% if passed_due %}disabled{% endif %}>{% trans "Submit" %}</button>
@@ -59,10 +59,6 @@
                     <button type='submit' class="csv-download" name="csv-download">Download CSV</button>
                 </form>
             </header>
-            <div class="grades-published">
-                <input name="grades-published" type="checkbox" {% if grades_published %} checked {% endif %}>
-                <label for="grades-published">Publish grades</label>
-            </div>
             <p class="modal-error"></p>
             <table class="submissions-list">
                 <thead>
