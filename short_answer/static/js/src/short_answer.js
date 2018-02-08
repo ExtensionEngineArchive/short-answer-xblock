@@ -1,6 +1,13 @@
 /* Javascript for ShortAnswerXBlock. */
 function ShortAnswerXBlock(runtime, element, options) {
+  const $answerSubmitButton = $('.answer-submission-button', element);
+  const $shortAnswer = $('.short-answer', element);
+  const gradesPublished = options.gradesPublished;
   const maxScore = options.maximumScore;
+  const passedDue = options.passedDue;
+  const score = options.score;
+
+  const shouldDisableAnswerTextArea = gradesPublished || passedDue;
 
   /**
    * Display errors from the server or a default error message if no error
@@ -24,6 +31,20 @@ function ShortAnswerXBlock(runtime, element, options) {
     $('input[name=score-input]', element).addClass('hidden');
     $('.submit-grade-form', element).addClass('hidden');
     $('.action-buttons', element).removeClass('hidden')
+  }
+
+  /**
+   * Check condition to verify that submiting is allowed.
+   */
+  function isSubmitAllowed() {
+    return !(gradesPublished || passedDue || isAnswerTextAreaEmpty());
+  }
+
+  /**
+   * Check if the answer text area is empty.
+   */
+  function isAnswerTextAreaEmpty() {
+    return !$shortAnswer.val();
   }
 
   /**
@@ -185,8 +206,26 @@ function ShortAnswerXBlock(runtime, element, options) {
     });
   });
 
+  /**
+   * Enable/Disable the submit button.
+   */
+  $shortAnswer.keyup(function() {
+    if (isSubmitAllowed()) {
+      $answerSubmitButton.removeAttr('disabled');
+    }
+    else {
+      $answerSubmitButton.attr('disabled', true);
+    }
+  });
+
   $(function($) {
     const csvDownloadUrl = runtime.handlerUrl(element, 'csv_download');
     $('form[name=csv-download]', element).attr('action', csvDownloadUrl);
+
+    $shortAnswer.keyup();
+
+    if (shouldDisableAnswerTextArea) {
+      $shortAnswer.attr('disabled', true);
+    }
   });
 }

@@ -4,7 +4,7 @@
     <div class="description">
         <p>{{ description }}</p>
     </div>
-    <textarea class="short-answer" name="short-answer" {% if grades_published %}disabled{% endif %}>{{answer}}</textarea>
+    <textarea class="short-answer" name="short-answer">{{answer}}</textarea>
     <p class="error"></p>
     {% if feedback %}
     <div class="feedback {% if not answer %}hidden{% endif %}"><p>{{ feedback }}</p></div>
@@ -12,7 +12,7 @@
     {% if score and grades_published %}
         <div class="user-score"><p>Your score is: {{ score|floatformat }} / {{ maximum_score }}</p></div>
     {% else %}
-        <button type="submit" class="btn-submit answer-submission-button" {% if passed_due %}disabled{% endif %}>{% trans "Submit" %}</button>
+        <button type="submit" class="btn-submit answer-submission-button">{% trans "Submit" %}</button>
     {% endif %}
 
     {% if is_course_staff %}
