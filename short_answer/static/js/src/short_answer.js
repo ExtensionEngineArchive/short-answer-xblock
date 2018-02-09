@@ -6,7 +6,7 @@ function ShortAnswerXBlock(runtime, element, options) {
   const maxScore = options.maximumScore;
   const passedDue = options.passedDue;
   const score = options.score;
-
+  // Variables that depend on other variables.
   const shouldDisableAnswerTextArea = gradesPublished || passedDue;
 
   /**
@@ -36,8 +36,8 @@ function ShortAnswerXBlock(runtime, element, options) {
   /**
    * Check condition to verify that submiting is allowed.
    */
-  function isSubmitAllowed() {
-    return !(gradesPublished || passedDue || isAnswerTextAreaEmpty());
+  function isSubmitDisallowed() {
+    return gradesPublished || passedDue || isAnswerTextAreaEmpty();
   }
 
   /**
@@ -210,22 +210,14 @@ function ShortAnswerXBlock(runtime, element, options) {
    * Enable/Disable the submit button.
    */
   $shortAnswer.keyup(function() {
-    if (isSubmitAllowed()) {
-      $answerSubmitButton.removeAttr('disabled');
-    }
-    else {
-      $answerSubmitButton.attr('disabled', true);
-    }
+    $answerSubmitButton.attr('disabled', isSubmitDisallowed());
   });
 
   $(function($) {
     const csvDownloadUrl = runtime.handlerUrl(element, 'csv_download');
     $('form[name=csv-download]', element).attr('action', csvDownloadUrl);
 
-    $shortAnswer.keyup();
-
-    if (shouldDisableAnswerTextArea) {
-      $shortAnswer.attr('disabled', true);
-    }
+    $answerSubmitButton.attr('disabled', isSubmitDisallowed());
+    $shortAnswer.attr('disabled', shouldDisableAnswerTextArea);
   });
 }
