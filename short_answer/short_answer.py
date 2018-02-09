@@ -150,6 +150,17 @@ class ShortAnswerXBlock(XBlock):
         return module
 
     @property
+    def passed_due(self):
+        """
+        Return true if the due date has passed.
+        """
+        now = datetime.datetime.utcnow().replace(tzinfo=pytz.utc)
+        due = get_extended_due_date(self)
+        if due is not None:
+            return now > due
+        return False
+
+    @property
     def student_grade(self):
         """
         Retrieve the manually added grade for the current user.
@@ -162,16 +173,6 @@ class ShortAnswerXBlock(XBlock):
         Retrieve the user object from the user_id in xmodule_runtime.
         """
         return User.objects.get(id=self.xmodule_runtime.user_id)
-
-    def passed_due(self):
-        """
-        Return true if the due date has passed.
-        """
-        now = datetime.datetime.utcnow().replace(tzinfo=pytz.utc)
-        due = get_extended_due_date(self)
-        if due is not None:
-            return now > due
-        return False
 
     def studio_view(self, context=None):
         """
@@ -198,6 +199,12 @@ class ShortAnswerXBlock(XBlock):
         The primary view of the ShortAnswerXBlock, shown to students
         when viewing courses.
         """
+        js_options = {
+            'gradesPublished': self.grades_published,
+            'maximumScore': self.maximum_score,
+            'passedDue': self.passed_due,
+            'score': self.student_grade,
+        }
         context.update({
             'answer': self.answer,
             'description': self.description,
@@ -206,14 +213,13 @@ class ShortAnswerXBlock(XBlock):
             'is_course_staff': getattr(self.xmodule_runtime, 'user_is_staff', False),
             'maximum_score': self.maximum_score,
             'module_id': self.module.id,  # Use the module id to generate different pop-up modals
-            'passed_due': self.passed_due(),
             'score': self.student_grade,
         })
         frag = Fragment()
         frag.add_content(render_template('static/html/short_answer.html', context))
         frag.add_css(resource_string('static/css/short_answer.css'))
         frag.add_javascript(resource_string('static/js/src/short_answer.js'))
-        frag.initialize_js('ShortAnswerXBlock', {'maximumScore': self.maximum_score})
+        frag.initialize_js('ShortAnswerXBlock', js_options)
         return frag
 
     @XBlock.json_handler
@@ -221,7 +227,7 @@ class ShortAnswerXBlock(XBlock):
         """
         Handle the student's answer submission.
         """
-        if self.passed_due():
+        if self.passed_due:
             return Response(
                 status_code=400,
                 body=json.dumps({'error': 'Submission due date has passed.'})
