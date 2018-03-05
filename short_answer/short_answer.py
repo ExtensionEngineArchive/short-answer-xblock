@@ -174,6 +174,9 @@ class ShortAnswerXBlock(XBlock):
         """
         return User.objects.get(id=self.xmodule_runtime.user_id)
 
+    def max_score(self):
+        return self.maximum_score
+
     def studio_view(self, context=None):
         """
         View for the form when editing this block in Studio.
