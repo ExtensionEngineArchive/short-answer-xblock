@@ -13,7 +13,6 @@ function ShortAnswerStudioXBlock(runtime, element) {
       'display_name': $('#display_name-input', element).val(),
       'description': $('#description-input', element).val(),
       'maximum_score': $('#maximum_score-input', element).val(),
-      'weight': $('#weight-input', element).val(),
       'feedback': $('#feedback-input', element).val()
     };
 

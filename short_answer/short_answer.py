@@ -122,14 +122,6 @@ class ShortAnswerXBlock(XBlock):
         help=_('Score given for this assignment.')
     )
 
-    weight = Float(
-        display_name=_('Problem Weight'),
-        default=1.0,
-        values={'min': 0},
-        scope=Scope.settings,
-        help=_('Defines the number of points the problem is worth.'),
-    )
-
     grades_published = Boolean(
         display_name='Display grade to students',
         scope=Scope.user_state_summary,
@@ -187,7 +179,6 @@ class ShortAnswerXBlock(XBlock):
             (cls.description, getattr(self, 'description', ''), 'textarea', 'text'),
             (cls.feedback, getattr(self, 'feedback', ''), 'textarea', 'text'),
             (cls.maximum_score, getattr(self, 'maximum_score', ''), 'input', 'number'),
-            (cls.weight, getattr(self, 'weight', ''), 'input', 'number'),
         )
 
         frag = Fragment()
