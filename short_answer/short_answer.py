@@ -170,7 +170,7 @@ class ShortAnswerXBlock(XBlock):
         return User.objects.get(id=self.xmodule_runtime.user_id)
 
     def max_score(self):
-        return self.weight
+        return self.weight or 100
 
     def studio_view(self, context=None):
         """
@@ -208,7 +208,7 @@ class ShortAnswerXBlock(XBlock):
             'feedback': self.feedback,
             'grades_published': self.grades_published,
             'is_course_staff': getattr(self.xmodule_runtime, 'user_is_staff', False),
-            'weight': self.weight,
+            'max_score': self.max_score(),
             'module_id': self.module.id,  # Use the module id to generate different pop-up modals
             'score': self.student_grade,
         })
@@ -323,7 +323,7 @@ class ShortAnswerXBlock(XBlock):
                 'answered_at': str(state.get('answered_at')),
                 'email': student.email,
                 'fullname': student.profile.name,
-                'maximum_score': self.weight,
+                'max_score': self.max_score(),
                 'module_id': module.id,
                 'score': module.grade,
             })

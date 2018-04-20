@@ -10,7 +10,7 @@
     <div class="feedback {% if not answer %}hidden{% endif %}"><p>{{ feedback }}</p></div>
     {% endif %}
     {% if score and grades_published %}
-        <div class="user-score"><p>Your score is: {{ score|floatformat }} / {{ weight }}</p></div>
+        <div class="user-score"><p>Your score is: {{ score|floatformat }} / {{ max_score }}</p></div>
     {% else %}
         <button type="submit" class="btn-submit answer-submission-button">{% trans "Submit" %}</button>
     {% endif %}
@@ -36,7 +36,7 @@
             <td>
                 <span class="score"><%= score %></span>
                 <input type="number" name="score-input" class="hidden" value="<%= score %>"
-                 placeholder="<%= maximum_score %>" max="<%= maximum_score %>">
+                 placeholder="<%= max_score %>" max="<%= max_score %>">
             </td>
             <td class="action-cell">
                 <div class="submit-grade-form hidden">
