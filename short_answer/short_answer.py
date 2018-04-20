@@ -108,11 +108,14 @@ class ShortAnswerXBlock(XBlock):
         help=_('Message that will be shown to the student once the student submits an answer.')
     )
 
-    maximum_score = Integer(
-        display_name=_('Maximum score'),
+    weight = Integer(
+        display_name="Problem Weight",
+        help=("Defines the number of points each problem is worth. "
+              "If the value is not set, the problem is worth the sum of the "
+              "option point values."),
+        values={"min": 0, "step": 1},
         default=100,
-        scope=Scope.settings,
-        help=_('Maximum score given for this assignment.')
+        scope=Scope.settings
     )
 
     score = Integer(
@@ -167,7 +170,7 @@ class ShortAnswerXBlock(XBlock):
         return User.objects.get(id=self.xmodule_runtime.user_id)
 
     def max_score(self):
-        return self.maximum_score
+        return self.weight
 
     def studio_view(self, context=None):
         """
@@ -178,7 +181,7 @@ class ShortAnswerXBlock(XBlock):
             (cls.display_name, getattr(self, 'display_name', ''), 'input', 'text'),
             (cls.description, getattr(self, 'description', ''), 'textarea', 'text'),
             (cls.feedback, getattr(self, 'feedback', ''), 'textarea', 'text'),
-            (cls.maximum_score, getattr(self, 'maximum_score', ''), 'input', 'number'),
+            (cls.weight, getattr(self, 'weight', ''), 'input', 'number'),
         )
 
         frag = Fragment()
@@ -195,7 +198,7 @@ class ShortAnswerXBlock(XBlock):
         """
         js_options = {
             'gradesPublished': self.grades_published,
-            'maximumScore': self.maximum_score,
+            'weight': self.weight,
             'passedDue': self.passed_due,
             'score': self.student_grade,
         }
@@ -205,7 +208,7 @@ class ShortAnswerXBlock(XBlock):
             'feedback': self.feedback,
             'grades_published': self.grades_published,
             'is_course_staff': getattr(self.xmodule_runtime, 'user_is_staff', False),
-            'maximum_score': self.maximum_score,
+            'weight': self.weight,
             'module_id': self.module.id,  # Use the module id to generate different pop-up modals
             'score': self.student_grade,
         })
@@ -257,14 +260,14 @@ class ShortAnswerXBlock(XBlock):
                 body=json.dumps({'error': error_msg_tpl.format(params=missing_params)})
             )
 
-        if float(score) > self.maximum_score:
+        if float(score) > self.weight:
             return Response(
                 status_code=400,
                 body=json.dumps({'error': 'Submitted score larger than the maximum allowed.'})
             )
         module = StudentModule.objects.get(pk=module_id)
         module.grade = float(score)
-        module.max_grade = self.maximum_score
+        module.max_grade = self.weight
         module.save()
         return Response(status_code=200, body=json.dumps({'new_score': module.grade}))
 
@@ -308,7 +311,7 @@ class ShortAnswerXBlock(XBlock):
                 module_state_key=self.location,
                 student=student,
                 defaults={
-                    'max_grade': self.maximum_score,
+                    'max_grade': self.weight,
                     'module_type': self.category,
                     'state': '{}',
                 }
@@ -319,7 +322,7 @@ class ShortAnswerXBlock(XBlock):
                 'answered_at': str(state.get('answered_at')),
                 'email': student.email,
                 'fullname': student.profile.name,
-                'maximum_score': self.maximum_score,
+                'maximum_score': self.weight,
                 'module_id': module.id,
                 'score': module.grade,
             })

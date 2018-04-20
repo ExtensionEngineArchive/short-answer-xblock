@@ -3,7 +3,7 @@ function ShortAnswerXBlock(runtime, element, options) {
   const $answerSubmitButton = $('.answer-submission-button', element);
   const $shortAnswer = $('.short-answer', element);
   const gradesPublished = options.gradesPublished;
-  const maxScore = options.maximumScore;
+  const maxScore = options.weight;
   const passedDue = options.passedDue;
   const score = options.score;
   // Variables that depend on other variables.

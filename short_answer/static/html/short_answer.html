@@ -10,7 +10,7 @@
     <div class="feedback {% if not answer %}hidden{% endif %}"><p>{{ feedback }}</p></div>
     {% endif %}
     {% if score and grades_published %}
-        <div class="user-score"><p>Your score is: {{ score|floatformat }} / {{ maximum_score }}</p></div>
+        <div class="user-score"><p>Your score is: {{ score|floatformat }} / {{ weight }}</p></div>
     {% else %}
         <button type="submit" class="btn-submit answer-submission-button">{% trans "Submit" %}</button>
     {% endif %}
