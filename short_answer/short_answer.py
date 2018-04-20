@@ -108,7 +108,7 @@ class ShortAnswerXBlock(XBlock):
         help=_('Message that will be shown to the student once the student submits an answer.')
     )
 
-    weight = Integer(
+    weight = Float(
         display_name="Problem Weight",
         help=("Defines the number of points each problem is worth. "
               "If the value is not set, the problem is worth the sum of the "
