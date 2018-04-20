@@ -316,7 +316,8 @@ class ShortAnswerXBlock(XBlock):
                     'state': '{}',
                 }
             )
-            state = json.loads(module.state)
+            state = json.loads(module.state) if module.state else {}
+
             submissions_list.append({
                 'answer': state.get('answer'),
                 'answered_at': str(state.get('answered_at')),
