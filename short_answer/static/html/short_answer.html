@@ -35,7 +35,7 @@
             <td><%= answered_at %></td>
             <td>
                 <span class="score"><%= score %></span>
-                <input type="number" name="score-input" class="hidden" value="<%= score %>"
+                <input type="number" step="0.01" min="0" name="score-input" class="hidden" value="<%= score %>"
                  placeholder="<%= max_score %>" max="<%= max_score %>">
             </td>
             <td class="action-cell">
