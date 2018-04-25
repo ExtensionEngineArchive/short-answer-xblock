@@ -68,7 +68,7 @@ function ShortAnswerXBlock(runtime, element, options) {
     submissions.forEach(function(submission) {
       submission.answer = submission.answer || '';
       if (submission.answered_at !== 'None') {
-        submission.answered_at = moment(submission.answered_at).format('MMM Do YYYY, HH:mm');
+        submission.answered_at = moment.utc(submission.answered_at).local().format('MM/DD/YYYY hh:mma');
       } else {
         submission.answered_at = ''
       }
