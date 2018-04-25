@@ -15,18 +15,26 @@ function ShortAnswerStudioXBlock(runtime, element) {
       'weight': $('#weight-input', element).val(),
       'feedback': $('#feedback-input', element).val()
     };
+    const dataValid = true;
 
-    $.ajax({
-      url: handlerUrl,
-      method: 'POST',
-      data: JSON.stringify(data),
-      success: function(data) {
-        window.location.reload(false);
-      },
-      error: function(err) {
-        console.error('Error: ', err);
-      }
-    });
+    /* Data validation */
+    if (data.weight <= 0) {
+      $('#error-weight', element).html('Weight must be a positive number');
+      dataValid = false;
+    }
+
+    if (dataValid)
+      $.ajax({
+        url: handlerUrl,
+        method: 'POST',
+        data: JSON.stringify(data),
+        success: function(data) {
+          window.location.reload(false);
+        },
+        error: function(err) {
+          console.error('Error: ', err);
+        }
+      });
   });
 
   /**

@@ -20,6 +20,7 @@
                             id="{{ field.name }}-input"
                             name="{{ field.name }}">{{ value }}</textarea>
                     {% endif %}
+                    <div class="error" id="error-{{ field.name }}"></div>
                 </div>
                 <span class="tip setting-help">{{ field.help }}</span>
             </li>
