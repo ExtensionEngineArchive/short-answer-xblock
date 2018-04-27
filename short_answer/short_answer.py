@@ -230,7 +230,7 @@ class ShortAnswerXBlock(XBlock):
                 body=json.dumps({'error': 'Submission due date has passed.'})
             )
         self.answer = data.get('submission')
-        self.answered_at = datetime.datetime.now()
+        self.answered_at = datetime.datetime.utcnow().replace(tzinfo=pytz.utc)
         return Response(status_code=201)
 
     @XBlock.json_handler
