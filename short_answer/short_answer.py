@@ -132,6 +132,13 @@ class ShortAnswerXBlock(XBlock):
         help='Indicates if the grades will be displayed to students.'
     )
 
+    width = Integer(
+        display_name=_('Input Area Width'),
+        default=500,
+        scope=Scope.settings,
+        help='Defines the width of the input text area in pixels.'
+    )
+
     @property
     def module(self):
         """
@@ -182,6 +189,7 @@ class ShortAnswerXBlock(XBlock):
             (cls.description, getattr(self, 'description', ''), 'textarea', 'text'),
             (cls.feedback, getattr(self, 'feedback', ''), 'textarea', 'text'),
             (cls.weight, getattr(self, 'weight', ''), 'input', 'number'),
+            (cls.width, getattr(self, 'width', ''), 'input', 'number'),
         )
 
         frag = Fragment()
@@ -211,6 +219,7 @@ class ShortAnswerXBlock(XBlock):
             'max_score': self.max_score(),
             'module_id': self.module.id,  # Use the module id to generate different pop-up modals
             'score': self.student_grade,
+            'width': self.width,
         })
         frag = Fragment()
         frag.add_content(render_template('static/html/short_answer.html', context))

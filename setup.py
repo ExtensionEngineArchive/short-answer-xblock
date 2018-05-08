@@ -23,7 +23,7 @@ def package_data(pkg, roots):
 
 setup(
     name='short_answer-xblock',
-    version='0.2.15',
+    version='0.2.16',
     description='Short Answer XBlock',
     license='MIT',
     packages=[
