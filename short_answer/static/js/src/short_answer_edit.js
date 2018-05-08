@@ -13,6 +13,7 @@ function ShortAnswerStudioXBlock(runtime, element) {
       'display_name': $('#display_name-input', element).val(),
       'description': $('#description-input', element).val(),
       'weight': $('#weight-input', element).val(),
+      'width': $('#width-input', element).val(),
       'feedback': $('#feedback-input', element).val()
     };
     const dataValid = true;
