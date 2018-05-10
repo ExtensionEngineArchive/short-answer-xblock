@@ -95,10 +95,10 @@ class ShortAnswerXBlock(XBlock):
     )
 
     display_name = String(
-        display_name=_('Display name'),
-        default=_('Short Answer'),
+        display_name='Display name',
+        default='Short Answer',
         scope=Scope.settings,
-        help=_('This name appears in the horizontal navigation at the top of the page.')
+        help='This name appears in the horizontal navigation at the top of the page.'
     )
 
     feedback = String(
