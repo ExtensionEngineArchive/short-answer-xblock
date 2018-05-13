@@ -228,6 +228,13 @@ class ShortAnswerXBlock(XBlock):
         frag.initialize_js('ShortAnswerXBlock', js_options)
         return frag
 
+    def update_weight(self):
+        """Update all previous CSM's."""
+        StudentModule.objects.filter(
+            course_id=self.course_id,
+            module_state_key=self.location
+        ).update(max_grade=self.weight)
+
     @XBlock.json_handler
     def student_submission(self, data, _):
         """
@@ -249,6 +256,7 @@ class ShortAnswerXBlock(XBlock):
         """
         for key in data:
             setattr(self, key, data[key])
+        self.update_weight()
         return Response(status_code=201)
 
     @XBlock.json_handler
