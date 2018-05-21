@@ -218,6 +218,7 @@ class ShortAnswerXBlock(XBlock):
             'is_course_staff': getattr(self.xmodule_runtime, 'user_is_staff', False),
             'max_score': self.max_score(),
             'module_id': self.module.id,  # Use the module id to generate different pop-up modals
+            'passed_due': self.passed_due,
             'score': self.student_grade,
             'width': self.width,
         })
@@ -235,16 +236,18 @@ class ShortAnswerXBlock(XBlock):
             module_state_key=self.location
         ).update(max_grade=self.weight)
 
+    def error_response(self, msg):
+        return Response(status_code=400, body=json.dumps({'error': msg}))
+
     @XBlock.json_handler
     def student_submission(self, data, _):
         """
         Handle the student's answer submission.
         """
         if self.passed_due:
-            return Response(
-                status_code=400,
-                body=json.dumps({'error': 'Submission due date has passed.'})
-            )
+            return self.error_response('Submission due date has passed.')
+        elif self.grades_published:
+            return self.error_response('Grades already published.')
         self.answer = data.get('submission')
         self.answered_at = datetime.datetime.utcnow().replace(tzinfo=pytz.utc)
         return Response(status_code=201)
@@ -272,16 +275,11 @@ class ShortAnswerXBlock(XBlock):
                 missing_params = 'score and module_id'
             else:
                 missing_params = 'score' if not score else 'module_id'
-            return Response(
-                status_code=400,
-                body=json.dumps({'error': error_msg_tpl.format(params=missing_params)})
-            )
+            return self.error_response(error_msg_tpl.format(params=missing_params))
 
         if float(score) > self.weight:
-            return Response(
-                status_code=400,
-                body=json.dumps({'error': 'Submitted score larger than the maximum allowed.'})
-            )
+            return self.error_response('Submitted score larger than the maximum allowed.')
+
         module = StudentModule.objects.get(pk=module_id)
         module.grade = float(score)
         module.max_grade = self.weight
@@ -296,10 +294,7 @@ class ShortAnswerXBlock(XBlock):
         """
         module_id = data.get('module_id')
         if not module_id:
-            return Response(
-                status_code=400,
-                body=json.dumps({'error': 'Missing module_id parameters.'})
-            )
+            return self.error_response('Missing module_id parameters.')
 
         module = StudentModule.objects.get(pk=module_id)
         module.grade = None
