@@ -12,10 +12,8 @@
     {% if score and grades_published %}
         <div class="user-score"><p>Your score is: {{ score|floatformat }} / {{ max_score }}</p></div>
     {% else %}
-        {% if passed_due %}
-            <p>Due date has passed, no further submissions are accepted.</p>
-        {% elif grades_published %}
-            <p>Grade have already been published.</p>
+        {% if passed_due or grades_published %}
+            <p>Submission period closed. No further submissions accepted.</p>
         {% else %}
             <button type="submit" class="btn-submit answer-submission-button">{% trans "Submit" %}</button>
         {% endif %}
