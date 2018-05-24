@@ -32,12 +32,20 @@
 }
 
 .short-answer-block .modal {
-    width: 1000px;
+    position: fixed;
+    z-index: 100;
+    display: none;
+    width: 80%;
+    height: 75%;
+    overflow: hidden;
+    left: 10% !important; /* important is necessary to override modal JS styling */
+    margin-left: 0 !important; /* important is necessary to override modal JS styling */
 }
 
 .short-answer-block .modal .inner-wrapper {
-    height: 800px;
+    height: 100%;
     overflow-y: scroll;
+    padding: 0px !important;
 }
 
 .short-answer-block .modal header {
