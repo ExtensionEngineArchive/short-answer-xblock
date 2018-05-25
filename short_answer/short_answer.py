@@ -1,5 +1,6 @@
 """Short Answer XBlock."""
 import datetime
+import dateutil.parser
 import json
 from io import BytesIO
 
@@ -43,6 +44,21 @@ def load_resource(resource_path):
     """
     resource_content = pkg_resources.resource_string(__name__, resource_path)
     return unicode(resource_content)
+
+
+def localize_datetime(datetime, timezone_offset):
+    """
+    Localizes datetime for users in the specific timezone.
+
+    Args:
+        datetime (string) - stringified datetime
+        timezone_offset (tzoffset) - timezone offset value
+    Returns:
+        Localized datetime
+    """
+    datetime_utc = dateutil.parser.parse(datetime).replace(tzinfo=pytz.utc)
+    local_datetime = datetime_utc.astimezone(timezone_offset)
+    return local_datetime.strftime('%m/%d/%Y %H:%M%p').lower()
 
 
 def render_template(template_path, context=None):
@@ -329,10 +345,11 @@ class ShortAnswerXBlock(XBlock):
                 }
             )
             state = json.loads(module.state) if module.state else {}
+            state_answered_at = state.get('answered_at', '')
 
             submissions_list.append({
                 'answer': state.get('answer'),
-                'answered_at': str(state.get('answered_at')),
+                'answered_at': str(state_answered_at),
                 'email': student.email,
                 'fullname': student.profile.name,
                 'max_score': self.max_score(),
@@ -349,7 +366,7 @@ class ShortAnswerXBlock(XBlock):
         submissions_list = self.get_submissions_list()
         return Response(status_code=200, body=json.dumps(submissions_list))
 
-    def create_csv(self):
+    def create_csv(self, local_timezone_offset):
         """
         CSV file generator. Yields a CSV line in each iteration.
         """
@@ -357,21 +374,26 @@ class ShortAnswerXBlock(XBlock):
         yield create_csv_row(['Name', 'Email', 'Answer', 'Answered at', 'Score'])
 
         for entry in submission_list:
+            answered_at = entry.get('answered_at', '')
+            if answered_at and local_timezone_offset:
+                answered_at = localize_datetime(answered_at, local_timezone_offset)
             yield create_csv_row([
                 entry.get('fullname'),
                 entry.get('email'),
                 entry.get('answer', ''),
-                entry.get('answered_at', ''),
+                answered_at,
                 entry.get('score')
             ])
 
     @XBlock.handler
-    def csv_download(self, *args, **kwargs):  # pylint: disable=unused-argument
+    def csv_download(self, request, *args, **kwargs):  # pylint: disable=unused-argument
         """
         Handles the CSV download request.
         """
+        local_datetime = request.params.get('local-datetime')
+        local_timezone_offset = dateutil.parser.parse(local_datetime).tzinfo
         response = Response(content_type='text/csv')
         response.content_disposition = 'attachment; filename="short_answer_submissions.csv"'
-        response.app_iter = self.create_csv()
+        response.app_iter = self.create_csv(local_timezone_offset)
 
         return response
