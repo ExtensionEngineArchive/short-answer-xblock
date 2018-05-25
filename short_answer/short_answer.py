@@ -345,11 +345,11 @@ class ShortAnswerXBlock(XBlock):
                 }
             )
             state = json.loads(module.state) if module.state else {}
-            state_answered_at = state.get('answered_at')
+            state_answered_at = state.get('answered_at', '')
 
             submissions_list.append({
                 'answer': state.get('answer'),
-                'answered_at': str(state_answered_at) if state_answered_at else '',
+                'answered_at': str(state_answered_at),
                 'email': student.email,
                 'fullname': student.profile.name,
                 'max_score': self.max_score(),
