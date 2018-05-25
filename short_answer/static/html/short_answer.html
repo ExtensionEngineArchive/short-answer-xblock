@@ -60,6 +60,7 @@
             <header>
                 <title>{% trans "Submissions list" %}</title>
                 <form name="csv-download" method='GET' action=''>
+                    <input type="hidden" name="local-datetime">
                     <button type='submit' class="csv-download" name="csv-download">Download CSV</button>
                 </form>
             </header>

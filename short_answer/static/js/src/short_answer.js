@@ -214,8 +214,10 @@ function ShortAnswerXBlock(runtime, element, options) {
   });
 
   $(function($) {
+    const localDateTime = moment().format();
     const csvDownloadUrl = runtime.handlerUrl(element, 'csv_download');
     $('form[name=csv-download]', element).attr('action', csvDownloadUrl);
+    $('input[name=local-datetime]', element).attr('value', localDateTime);
 
     $answerSubmitButton.attr('disabled', isSubmitDisallowed());
     $shortAnswer.attr('disabled', shouldDisableAnswerTextArea);
