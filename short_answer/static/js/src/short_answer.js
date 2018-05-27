@@ -97,7 +97,7 @@ function ShortAnswerXBlock(runtime, element, options) {
       $answer.toggleClass('hidden');
     });
 
-    $('button[name=change-grade]', element).click(function() {
+    $('button[name=enter-grade]', element).click(function() {
         const $row = $(this).parents('tr');
 
         closeEditing();
