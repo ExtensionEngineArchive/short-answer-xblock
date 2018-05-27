@@ -102,6 +102,7 @@ function ShortAnswerXBlock(runtime, element, options) {
 
         closeEditing();
         $('.score', $row).addClass('hidden');
+        $('.max_score', $row).addClass('hidden');
         $('input[name=score-input]', $row).removeClass('hidden');
         $('.submit-grade-form', $row).removeClass('hidden');
         $('.action-buttons', $row).addClass('hidden');
@@ -149,7 +150,8 @@ function ShortAnswerXBlock(runtime, element, options) {
             score: score
           }),
           success: function(data) {
-            $('.score', $row).text(data.new_score)
+            $('.score', $row).text(data.new_score);
+            $('.max_score', $row).removeClass('hidden');
           },
           error: function(err) {
             displayError('.modal-error', err);
