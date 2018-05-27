@@ -38,7 +38,7 @@
             </td>
             <td><%= answered_at %></td>
             <td>
-                <span class="score"><%= score %></span> / <span="max_score"><%= max_score %></span>
+                <span class="score"><% if (score) { %><%= score %></span> / <span="max_score"><%= max_score %><% } %></span>
                 <input type="number" step="0.1" min="0.1" name="score-input" class="hidden" value="<%= score %>"
                  placeholder="<%= max_score %>" max="<%= max_score %>">
             </td>
