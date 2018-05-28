@@ -55,6 +55,14 @@ function ShortAnswerXBlock(runtime, element, options) {
   }
 
   /**
+   * Returns a float with two decimal positions for the passed in grade.
+   * @param {int} grade
+   */
+  function gradeWithDecimals(grade) {
+    return parseFloat(grade).toFixed(2);
+  }
+
+  /**
    * Populate the submissions table in the modal window and
    * bind all the buttons for each row.
    */
@@ -67,12 +75,14 @@ function ShortAnswerXBlock(runtime, element, options) {
 
     submissions.forEach(function(submission) {
       submission.answer = submission.answer || '';
-      if (submission.answered_at !== 'None') {
+      if (submission.answered_at && submission.answered_at !== 'None') {
         submission.answered_at = moment.utc(submission.answered_at).local().format('MM/DD/YYYY hh:mma');
       } else {
         submission.answered_at = ''
       }
-      submission.score = submission.score || '';
+
+      submission.score = submission.score ? gradeWithDecimals(submission.score) : '';
+      submission.max_score = gradeWithDecimals(submission.max_score);
 
       $(template(submission)).appendTo($tableBody);
     });
@@ -102,6 +112,7 @@ function ShortAnswerXBlock(runtime, element, options) {
 
         closeEditing();
         $('.score', $row).addClass('hidden');
+        $('.max_score', $row).addClass('hidden');
         $('input[name=score-input]', $row).removeClass('hidden');
         $('.submit-grade-form', $row).removeClass('hidden');
         $('.action-buttons', $row).addClass('hidden');
@@ -149,7 +160,8 @@ function ShortAnswerXBlock(runtime, element, options) {
             score: score
           }),
           success: function(data) {
-            $('.score', $row).text(data.new_score)
+            $('.score', $row).text(gradeWithDecimals(data.new_score));
+            $('.max_score', $row).removeClass('hidden');
           },
           error: function(err) {
             displayError('.modal-error', err);
