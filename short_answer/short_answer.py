@@ -342,10 +342,16 @@ class ShortAnswerXBlock(XBlock):
                     'max_grade': self.weight,
                     'module_type': self.category,
                     'state': '{}',
+                    'grade': 0,
                 }
             )
             state = json.loads(module.state) if module.state else {}
             state_answered_at = state.get('answered_at', '')
+
+            # For answers not defaulted to zero.
+            if module.grade is None:
+                module.grade = 0
+                module.save()
 
             submissions_list.append({
                 'answer': state.get('answer'),
@@ -354,7 +360,7 @@ class ShortAnswerXBlock(XBlock):
                 'fullname': student.profile.name,
                 'max_score': self.max_score(),
                 'module_id': module.id,
-                'score': module.grade,
+                'score': '{:.2f}'.format(module.grade),
             })
         return submissions_list
 

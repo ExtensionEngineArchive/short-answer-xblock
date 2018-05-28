@@ -9,10 +9,10 @@
     {% if feedback %}
     <div class="feedback {% if not answer %}hidden{% endif %}"><p>{{ feedback }}</p></div>
     {% endif %}
-    {% if score and grades_published %}
+    {% if grades_published %}
         <div class="user-score"><p>Your score is: {{ score|floatformat }} / {{ max_score }}</p></div>
     {% else %}
-        {% if passed_due or grades_published %}
+        {% if passed_due %}
             <p>Submission period closed. No further submissions accepted.</p>
         {% else %}
             <button type="submit" class="btn-submit answer-submission-button">{% trans "Submit" %}</button>
@@ -38,7 +38,7 @@
             </td>
             <td><%= answered_at %></td>
             <td>
-                <span class="score"><% if (score) { %><%= score %></span> / <span="max_score"><%= max_score %><% } %></span>
+                <span class="score"><%= score %></span> / <span="max_score"><%= max_score %></span>
                 <input type="number" step="0.1" min="0.1" name="score-input" class="hidden" value="<%= score %>"
                  placeholder="<%= max_score %>" max="<%= max_score %>">
             </td>
